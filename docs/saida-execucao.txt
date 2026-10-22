@@ -1,0 +1,52 @@
+==========================================
+PEDIDO Nº 1001
+==========================================
+
+Cliente: Carlos Silva
+
+------------------------------------------
+ITENS
+------------------------------------------
+
+Produto: Teclado Mecânico
+Quantidade: 2
+Valor unitário: R$ 350,00
+Subtotal: R$ 700,00
+
+Produto: Curso PHP Orientado a Objetos
+Quantidade: 1
+Valor unitário: R$ 199,90
+Subtotal: R$ 199,90
+
+------------------------------------------
+Frete: R$ 32,00
+Valor Total: R$ 931,90
+Forma de pagamento: PIX
+Status: Pago
+Pagamento realizado com sucesso.
+==========================================
+
+Estoque atualizado:
+Teclado Mecânico: 8
+Curso PHP Orientado a Objetos: 99
+
+========== TESTES ==========
+
+>> Teste 1: comprar quantidade maior que o estoque
+[Estoque] Estoque insuficiente para Teclado Mecânico. Disponível: 8, solicitado: 50.
+
+>> Teste 2: adicionar quantidade zero
+[Pedido] A quantidade do item deve ser maior que zero.
+
+>> Teste 3: criar produto com preço negativo
+[Dados inválidos] O preço do produto não pode ser negativo.
+
+>> Teste 4: processar pedido sem produtos
+[Pedido] O pedido precisa ter pelo menos um item para ser processado.
+
+>> Teste 5: adicionar produto em pedido concluído
+Status do pedido 1005: Concluído
+[Pedido] Não é possível adicionar itens a um pedido com status Concluído.
+
+>> Teste 6: pagar pedido cancelado
+[Pagamento] Um pedido cancelado não pode ser pago.

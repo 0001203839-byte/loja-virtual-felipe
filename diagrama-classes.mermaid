@@ -1,0 +1,111 @@
+classDiagram
+    class Produto {
+        <<abstract>>
+        -int codigo
+        -string nome
+        -float preco
+        -int estoque
+        +getPreco() float
+        +getEstoque() int
+        +alterarPreco(float novoPreco)
+        +adicionarEstoque(int quantidade)
+        +removerEstoque(int quantidade)
+        +calcularFrete() float
+        +calcularPrecoFinal() float
+    }
+    class ProdutoFisico {
+        -float peso
+        -float largura
+        -float altura
+        -float profundidade
+        +calcularFrete() float
+        +calcularPrecoFinal() float
+    }
+    class ProdutoDigital {
+        -float tamanhoArquivo
+        -string formato
+        -string linkDownload
+        +calcularPrecoFinal() float
+    }
+    class Cliente {
+        -int codigo
+        -string nome
+        -string cpf
+        -string email
+        -string telefone
+        -array enderecos
+        +getCpf() string
+        +adicionarEndereco(Endereco e)
+    }
+    class Endereco {
+        -string logradouro
+        -string numero
+        -string complemento
+        -string bairro
+        -string cidade
+        -string estado
+        -string cep
+        +getEnderecoCompleto() string
+    }
+    class ItemPedido {
+        -Produto produto
+        -int quantidade
+        -float precoUnitario
+        -float subtotal
+        +getSubtotal() float
+        +getFrete() float
+    }
+    class Pedido {
+        -int numero
+        -Cliente cliente
+        -DateTime data
+        -array itens
+        -string status
+        -float valorTotal
+        +adicionarItem(Produto p, int qtd)
+        +removerItem(int codigo)
+        +calcularTotal() float
+        +alterarStatus(string status)
+        +listarItens() array
+        +exibirResumo() string
+    }
+    class PagamentoInterface {
+        <<interface>>
+        +pagar(float valor) string
+        +getNome() string
+    }
+    class PagamentoPix {
+        -string chave
+        +pagar(float valor) string
+    }
+    class PagamentoCartao {
+        -string numeroCartao
+        -string titular
+        -int parcelas
+        +pagar(float valor) string
+    }
+    class PagamentoBoleto {
+        -int diasVencimento
+        +pagar(float valor) string
+    }
+    class PedidoService {
+        +validarPedido(Pedido p)
+        +verificarEstoque(Pedido p)
+        +processarPagamento(Pedido p, PagamentoInterface pg)
+        +atualizarEstoque(Pedido p)
+        +processar(Pedido p, PagamentoInterface pg)
+        +finalizarPedido(Pedido p)
+    }
+
+    Produto <|-- ProdutoFisico
+    Produto <|-- ProdutoDigital
+    Cliente *-- "1..*" Endereco
+    Pedido *-- "1..*" ItemPedido
+    ItemPedido o-- "1" Produto
+    Pedido --> "1" Cliente
+    Pedido --> "0..1" PagamentoInterface
+    PagamentoInterface <|.. PagamentoPix
+    PagamentoInterface <|.. PagamentoCartao
+    PagamentoInterface <|.. PagamentoBoleto
+    PedidoService ..> Pedido
+    PedidoService ..> PagamentoInterface
