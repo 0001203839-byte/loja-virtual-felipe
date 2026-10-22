@@ -1,14 +1,18 @@
 # Loja POO
 
-Sistema de loja virtual feito em PHP puro usando Programação Orientada a Objetos.
+Atividade prática de PHP com Programação Orientada a Objetos.
+
+Aluno: Felipe
 
 ## Objetivo
 
-Simular uma compra completa em uma loja virtual (cadastro de produtos, cliente, pedido, pagamento e baixa de estoque) aplicando os conceitos de POO vistos em aula.
+Fazer um sistema de loja virtual em PHP puro usando POO, simulando uma compra do começo ao fim: cadastro dos produtos e do cliente, montagem do pedido, pagamento e baixa no estoque.
 
 ## Descrição
 
-O sistema trabalha com produtos físicos e digitais, clientes com endereço, pedidos com vários itens e três formas de pagamento (PIX, cartão e boleto). Todas as regras de processamento do pedido ficam na classe `PedidoService`, e o `index.php` só monta o cenário de teste e mostra o resultado.
+O sistema tem produtos físicos e digitais, cliente com endereço, pedido com vários itens e três formas de pagamento (PIX, cartão e boleto).
+
+Separei as responsabilidades em pastas. As regras de processamento do pedido ficam no `PedidoService`, e o `index.php` só monta o cenário de teste e mostra o resultado na tela.
 
 ## Estrutura das pastas
 
@@ -35,95 +39,98 @@ loja-poo/
 │       ├── EstoqueInsuficienteException.php
 │       ├── PedidoInvalidoException.php
 │       └── PagamentoException.php
-├── index.php
 ├── docs/
 │   ├── diagrama-classes.png
 │   └── saida-execucao.txt
 ├── diagrama-classes.mermaid
+├── index.php
 └── README.md
 ```
 
-## Classes implementadas
+## Classes
 
-| Classe | Namespace | Função |
-|---|---|---|
-| Produto | App\Models | Classe abstrata com os dados comuns de todo produto |
-| ProdutoFisico | App\Models | Produto com peso e medidas, cobra frete |
-| ProdutoDigital | App\Models | Produto com formato, tamanho e link, sem frete |
-| Cliente | App\Models | Dados do cliente e lista de endereços |
-| Endereco | App\Models | Endereço do cliente |
-| ItemPedido | App\Models | Produto + quantidade, calcula o subtotal |
-| Pedido | App\Models | Itens, status, total e resumo do pedido |
-| PagamentoInterface | App\Interfaces | Contrato das formas de pagamento |
-| PagamentoPix / PagamentoCartao / PagamentoBoleto | App\Pagamentos | Formas de pagamento |
-| PedidoService | App\Services | Validação, estoque, pagamento e finalização |
-| EstoqueInsuficienteException, PedidoInvalidoException, PagamentoException | App\Exceptions | Exceções personalizadas |
+- `Produto`: classe abstrata com código, nome, preço e estoque.
+- `ProdutoFisico`: herda de Produto, tem peso e medidas e cobra frete.
+- `ProdutoDigital`: herda de Produto, tem formato, tamanho e link de download. Não cobra frete.
+- `Cliente`: dados do cliente e a lista de endereços.
+- `Endereco`: endereço do cliente.
+- `ItemPedido`: guarda o produto, a quantidade e calcula o subtotal.
+- `Pedido`: itens, status, valor total e o resumo do pedido.
+- `PagamentoInterface`: interface que toda forma de pagamento implementa.
+- `PagamentoPix`, `PagamentoCartao` e `PagamentoBoleto`: as formas de pagamento.
+- `PedidoService`: valida o pedido, confere o estoque, processa o pagamento, baixa o estoque e finaliza.
+- `EstoqueInsuficienteException`, `PedidoInvalidoException` e `PagamentoException`: exceções criadas para o projeto.
 
-## Conceitos de POO utilizados
+## Conceitos de POO
 
-**Encapsulamento:** todos os atributos são `private`. Os dados são lidos por getters e alterados só por métodos que validam o valor, como `alterarPreco()`, `adicionarEstoque()` e `removerEstoque()`. O CPF do cliente não tem setter, então não muda depois que o objeto é criado. O subtotal do `ItemPedido` é calculado dentro da classe e não existe forma de informar ele manualmente. O status do pedido só muda pelo `alterarStatus()`, que só aceita mudanças permitidas (ex.: não dá para ir de Aberto direto para Concluído).
+**Encapsulamento**
+Deixei todos os atributos como `private`. Para ler uso os getters, e para alterar só por métodos que validam antes, como `alterarPreco()`, `adicionarEstoque()` e `removerEstoque()`. O CPF do cliente não tem setter, então não dá para mudar depois de criado. O subtotal do item é calculado dentro da própria classe, então não tem como passar ele na mão. O status do pedido só muda pelo `alterarStatus()`, que bloqueia mudanças que não fazem sentido, por exemplo ir de Aberto direto para Concluído.
 
-**Herança:** `ProdutoFisico` e `ProdutoDigital` herdam de `Produto`. As exceções personalizadas herdam de `Exception`.
+**Herança**
+`ProdutoFisico` e `ProdutoDigital` herdam de `Produto`. As três exceções herdam de `Exception`.
 
-**Abstração:** `Produto` é abstrata, então não dá para criar um "produto genérico". Ela concentra o que todo produto tem (código, nome, preço, estoque e o controle desses dados) e obriga as filhas a implementar `calcularPrecoFinal()`.
+**Abstração**
+`Produto` é abstrata porque não existe um produto "genérico" na loja, ele sempre vai ser físico ou digital. Ela junta o que é comum a todos e obriga as classes filhas a implementar o `calcularPrecoFinal()`.
 
-**Polimorfismo:** `calcularPrecoFinal()` funciona diferente em cada produto (o físico soma o frete, o digital retorna só o preço) e o `Pedido` chama o mesmo método sem saber o tipo. No pagamento, o `PedidoService::processar()` recebe um `PagamentoInterface` e chama `pagar()`, e cada classe faz o pagamento do seu jeito.
+**Polimorfismo**
+O `calcularPrecoFinal()` funciona diferente em cada produto: o físico soma o frete e o digital devolve só o preço. O pedido chama o mesmo método sem precisar saber qual é o tipo do produto.
+Com o pagamento é igual. O `PedidoService` recebe qualquer objeto que implemente `PagamentoInterface` e chama `pagar()`, e cada forma de pagamento faz isso do seu jeito.
 
-**Composição:**
-- Cliente → Endereco: o cliente já é criado com um endereço obrigatório e guarda a lista de endereços.
-- Pedido → ItemPedido: o próprio pedido cria os itens dentro de `adicionarItem()`; o item não existe fora do pedido.
-- ItemPedido → Produto: cada item guarda a referência do produto vendido e o preço unitário no momento da compra.
+**Composição**
+- Cliente → Endereco: o cliente já é criado com um endereço obrigatório e pode ter outros.
+- Pedido → ItemPedido: os itens são criados pelo próprio pedido no `adicionarItem()` e só existem dentro dele.
+- ItemPedido → Produto: cada item guarda o produto vendido e o preço unitário do momento da compra.
 
-**Interface:** `PagamentoInterface` define que toda forma de pagamento precisa ter `pagar()` e `getNome()`. Assim o service e o pedido dependem só da interface, e dá para criar uma forma nova de pagamento sem mexer neles.
+**Interface**
+A `PagamentoInterface` obriga toda forma de pagamento a ter `pagar()` e `getNome()`. Assim o service não depende de PIX, cartão ou boleto especificamente. Se precisar de uma forma de pagamento nova, é só criar outra classe implementando a interface, sem mexer no resto.
 
-**Namespaces e autoload:** as classes estão nos namespaces `App\Models`, `App\Services`, `App\Pagamentos`, `App\Interfaces` e `App\Exceptions`. O carregamento é feito com `spl_autoload_register()` no `index.php`, convertendo o namespace `App\` para a pasta `src/`.
+**Namespaces e autoload**
+Usei os namespaces `App\Models`, `App\Services`, `App\Pagamentos`, `App\Interfaces` e `App\Exceptions`. O autoload é feito com `spl_autoload_register()` no `index.php`, que transforma o namespace `App\` no caminho da pasta `src/`.
 
 ## Regras de negócio
 
-1. Produto não pode ter preço negativo (verificado no construtor e no `alterarPreco()`).
-2. Estoque não pode ficar negativo (`removerEstoque()` lança `EstoqueInsuficienteException`).
-3. Item precisa ter quantidade maior que zero.
+1. Produto não pode ter preço negativo.
+2. Estoque não pode ficar negativo.
+3. Item tem que ter quantidade maior que zero.
 4. Pedido precisa ter pelo menos um item para ser processado.
 5. Pedido cancelado não pode ser pago.
-6. Pedido concluído não recebe novos itens.
-7. O pedido só é concluído depois de pago.
-8. O estoque só é baixado depois da confirmação do pagamento.
-9. Não é possível vender mais do que o estoque disponível.
+6. Pedido concluído não aceita novos itens.
+7. O pedido só pode ser concluído depois de pago.
+8. O estoque só é baixado depois que o pagamento é confirmado.
+9. Não dá para vender mais do que tem no estoque.
 10. Produto digital não tem frete.
 
-**Regra do frete:** R$ 10,00 fixo + R$ 5,00 por kg, por unidade do produto físico. Para o teclado (1,2 kg): 10 + 6 = R$ 16,00 por unidade.
+Regra do frete que usei: R$ 10,00 fixo + R$ 5,00 por kg, cobrado por unidade. O teclado tem 1,2 kg, então fica 10 + 6 = R$ 16,00 por unidade. Como no pedido são 2 teclados, o frete total ficou R$ 32,00.
 
 ## Como executar
 
-Precisa do PHP 7.4 ou superior instalado.
+Precisa do PHP 7.4 ou mais novo (eu rodei pelo terminal do Laragon).
+
+Dentro da pasta do projeto:
 
 ```
-cd loja-poo
 php index.php
 ```
 
-Para salvar a saída em arquivo:
+Para salvar a saída num arquivo:
 
 ```
 php index.php > saida.txt
 ```
 
-## Testes realizados
+## Testes
 
-| Teste | Situação | Resultado esperado |
-|---|---|---|
-| 1 | Comprar 50 teclados com 8 em estoque | `EstoqueInsuficienteException` |
-| 2 | Adicionar quantidade 0 | `PedidoInvalidoException` |
-| 3 | Criar produto com preço -80 | `InvalidArgumentException` |
-| 4 | Processar pedido sem itens | `PedidoInvalidoException` |
-| 5 | Adicionar item em pedido concluído | `PedidoInvalidoException` |
-| 6 | Pagar pedido cancelado | `PagamentoException` |
+1. Comprar mais do que tem no estoque (50 teclados com 8 disponíveis): `EstoqueInsuficienteException`.
+2. Adicionar item com quantidade zero: `PedidoInvalidoException`.
+3. Criar produto com preço negativo: `InvalidArgumentException`.
+4. Processar pedido sem nenhum item: `PedidoInvalidoException`.
+5. Adicionar produto num pedido já concluído: `PedidoInvalidoException`.
+6. Pagar um pedido cancelado: `PagamentoException`.
 
-Em todos os casos a exceção é capturada e o sistema mostra a mensagem sem parar a execução. A saída completa está em `docs/saida-execucao.txt`.
+Todos os erros são tratados com try/catch, então o sistema mostra a mensagem e continua rodando. A saída completa da execução está em `docs/saida-execucao.txt`.
 
 ## Diagrama de classes
 
 ![Diagrama de classes](docs/diagrama-classes.png)
 
-O código fonte do diagrama está em `diagrama-classes.mermaid`.
-"# loja.poo" 
+O código do diagrama está no arquivo `diagrama-classes.mermaid`.
