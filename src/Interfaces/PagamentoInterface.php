@@ -2,8 +2,7 @@
 
 namespace App\Interfaces;
 
-interface PagamentoInterface
-{
+interface PagamentoInterface {
     public function pagar(float $valor): string;
 
     public function getNome(): string;

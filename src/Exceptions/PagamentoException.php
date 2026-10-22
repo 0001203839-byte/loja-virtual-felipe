@@ -4,6 +4,5 @@ namespace App\Exceptions;
 
 use Exception;
 
-class PagamentoException extends Exception
-{
+class PagamentoException extends Exception {
 }

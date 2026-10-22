@@ -4,6 +4,5 @@ namespace App\Exceptions;
 
 use Exception;
 
-class EstoqueInsuficienteException extends Exception
-{
+class EstoqueInsuficienteException extends Exception {
 }
