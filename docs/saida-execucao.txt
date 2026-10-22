@@ -2,7 +2,7 @@
 PEDIDO Nº 1001
 ==========================================
 
-Cliente: Carlos Silva
+Cliente: Felipe Souza
 
 ------------------------------------------
 ITENS
